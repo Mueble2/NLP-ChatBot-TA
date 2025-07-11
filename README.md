@@ -41,10 +41,10 @@ cd frontend
 ### 2. Instala dependencias (versión exacta)
 
 ```bash
-npm co
+npm ci
 ```
 
-> 🟢 `npm ci` y cumple exactamente la misma función:  
+> 🟢 `npm ci` cumple exactamente la misma función:  
 > instalar las dependencias **exactamente como están en `package-lock.json`**, sin actualizarlas ni resolver versiones nuevamente.
 
 Esto garantiza que todas las personas desarrollen con el mismo entorno.
