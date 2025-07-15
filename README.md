@@ -1,6 +1,6 @@
 # 🧠 ChatBot RAG - Ayacucho
 
-Este proyecto es un chatbot basado en Retrieval-Augmented Generation (RAG), que permite responder preguntas sobre la Batalla de Ayacucho a partir de fuentes en línea.
+Este proyecto es un chatbot basado en Retrieval-Augmented Generation (RAG), que permite responder preguntas sobre la Batalla de Ayacucho a partir de fuentes históricas disponibles en línea.
 
 ---
 
@@ -9,10 +9,41 @@ Este proyecto es un chatbot basado en Retrieval-Augmented Generation (RAG), que 
 - Python 3.10 o superior
 - Node.js 18+ y npm
 - Navegador web moderno
+- [Ollama](https://ollama.com/) instalado localmente
 
 ---
 
-## 🖥️ Instalación
+## 🔌 Instalación de Ollama y modelo LLM
+
+**Ollama** es el servidor que ejecuta localmente el modelo de lenguaje `phi3.5`, utilizado por el backend.
+
+### En Linux/macOS:
+
+1. Instala Ollama:
+
+   ```bash
+   curl -fsSL https://ollama.com/install.sh | sh
+
+   ```
+
+2. Lanza el servidor Ollama (en segundo plano):
+
+   ```bash
+   ollama serve > /dev/null 2>&1 &
+   sleep 10
+   ```
+
+3. Descarga el modelo `phi3.5`:
+
+   ```bash
+   ollama pull phi3.5:latest
+   ```
+
+> ⚠️ Si estás en **Windows**, descarga Ollama desde su [sitio oficial](https://ollama.com/download) y asegúrate de que esté ejecutándose antes de iniciar el backend.
+
+---
+
+## 🖥️ Instalación del proyecto
 
 ### 🔧 Backend
 
@@ -20,7 +51,6 @@ Este proyecto es un chatbot basado en Retrieval-Augmented Generation (RAG), que 
 
    ```bash
    cd backend
-
    ```
 
 2. Crea un entorno virtual:
@@ -76,13 +106,19 @@ npm run dev
 
 ## ✅ ¡Listo!
 
-Accede al chatbot desde tu navegador en:
+El chatbot estará disponible en:
 
 📍 [http://localhost:5173/](http://localhost:5173/)
 
 ---
 
-## 📝 Notas
+## 📝 Notas adicionales
 
-- Asegúrate de que el backend esté completamente inicializado antes de hacer consultas desde el frontend.
-- Los datos se almacenan en `backend/db/` usando `Chroma` como base vectorial persistente.
+- Verifica que el servidor de Ollama esté corriendo antes de levantar el backend.
+- La base de datos vectorial (Chroma) se almacena en `backend/db/`.
+- El modelo `phi3.5` se utiliza por defecto con temperatura 0.5 para mantener respuestas coherentes y controladas.
+
+```
+
+¿Deseas que te lo empaquete como archivo descargable `.md`?
+```
