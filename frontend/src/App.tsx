@@ -40,25 +40,27 @@ function App({ onToggleTheme, themeMode }: Props) {
     setLoading(true);
 
     try {
-      let data: { answer: string };
+      let data: { respuesta: string };
 
       if (mode === "real") {
-        const response = await fetch("http://localhost:8000/ask", {
+        const response = await fetch("http://localhost:8000/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question }),
+          // Aquí envías la clave "pregunta" que espera el backend
+          body: JSON.stringify({ pregunta: question }),
         });
         data = await response.json();
       } else {
-        data = await mockAnswer(question);
+        const mock = await mockAnswer(question);
+        data = { respuesta: mock.answer };
       }
 
-      setChat([...chat, { question, answer: data.answer }]);
+      setChat([...chat, { question, answer: data.respuesta }]);
       setQuestion("");
     } catch (error) {
       setChat([
         ...chat,
-        { question, answer: "❌ Error al obtener respuesta." },
+        { question, answer: "❌ Error al obtener respuesta: " + error },
       ]);
     } finally {
       setLoading(false);
