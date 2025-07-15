@@ -17,6 +17,8 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 
 import type { ChatEntry } from "./types";
 
+const fondo = `/batalla${Math.floor(Math.random() * 4 + 1)}.png`;
+
 interface Props {
   onToggleTheme: () => void;
   themeMode: "light" | "dark";
@@ -84,108 +86,138 @@ function App({ onToggleTheme, themeMode }: Props) {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "background.default",
-        color: "text.primary",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-        px: 2,
-      }}
-    >
-      {/* Botón de cambio de tema */}
-      <Box position="absolute" top={8} right={8}>
-        <IconButton onClick={onToggleTheme} color="inherit">
-          {themeMode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
-        </IconButton>
-      </Box>
+    <>
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundImage: `url(${fondo})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "blur(4px)",
+          opacity: themeMode === "dark" ? "100%" : "40%",
+          zIndex: -1,
+        }}
+      />
 
-      <Container maxWidth="xs">
-        <Typography variant="h5" align="center" gutterBottom>
-          Habla con el Sgto. Tomás Rivas
-        </Typography>
+      <Box
+        sx={{
+          minHeight: "100vh",
+          backgroundColor:
+            themeMode === "dark"
+              ? "rgba(18, 18, 18, 0.8)"
+              : "rgba(255, 255, 255, 0.4)",
+          color: "text.primary",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          px: 2,
+        }}
+      >
+        {/* Botón de cambio de tema */}
+        <Box position="absolute" top={8} right={8}>
+          <IconButton onClick={onToggleTheme} color="inherit">
+            {themeMode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+        </Box>
 
-        <Paper
+        <Container
+          maxWidth="xs"
           sx={{
-            height: "60vh",
-            overflowY: "auto",
-            p: 1,
-            mb: 2,
-            borderRadius: 2,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            bgcolor: "background.paper",
-            "&::-webkit-scrollbar": {
-              width: "8px",
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "#2a2a2a",
-              borderRadius: "4px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#555",
-              borderRadius: "4px",
-            },
-            "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: "#888",
-            },
+            backgroundColor: "background.default",
+            mx: 0,
+            py: 4,
+            borderRadius: 3,
+            boxShadow: "0px 4px 24px rgba(0, 0, 0, 0.5)",
           }}
         >
-          {chat.map((entry, i) => (
-            <Box key={i}>
-              {entry.question && (
-                <Box display="flex" alignItems="center" gap={1}>
-                  <AccountCircleIcon color="primary" />
-                  <Typography variant="body2">{entry.question}</Typography>
-                </Box>
-              )}
-              <Box display="flex" alignItems="center" gap={1} mt={1}>
-                <AndroidIcon color="secondary" />
-                <Typography variant="body2" color="text.secondary">
-                  {entry.answer}
-                </Typography>
-              </Box>
-            </Box>
-          ))}
-          <div ref={bottomRef} />
-        </Paper>
+          <Typography variant="h5" align="center" gutterBottom>
+            Habla con el Sgto. Tomás Rivas
+          </Typography>
 
-        <Box display="flex" gap={1}>
-          <TextField
-            fullWidth
-            size="small"
-            variant="outlined"
-            placeholder="Haz tu pregunta..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleAsk();
-              }
+          <Paper
+            sx={{
+              height: "60vh",
+              overflowY: "auto",
+              p: 1,
+              mb: 2,
+              borderRadius: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              bgcolor: "background.paper",
+              "&::-webkit-scrollbar": {
+                width: "8px",
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "#2a2a2a",
+                borderRadius: "4px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#555",
+                borderRadius: "4px",
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                backgroundColor: "#888",
+              },
             }}
-          />
-          <Button
-            variant="contained"
-            onClick={handleAsk}
-            disabled={loading}
-            endIcon={
-              loading ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                <SendIcon />
-              )
-            }
           >
-            ENVIAR
-          </Button>
-        </Box>
-      </Container>
-    </Box>
+            {chat.map((entry, i) => (
+              <Box key={i}>
+                {entry.question && (
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <AccountCircleIcon color="primary" />
+                    <Typography variant="body2">{entry.question}</Typography>
+                  </Box>
+                )}
+                <Box display="flex" alignItems="center" gap={1} mt={1}>
+                  <AndroidIcon color="secondary" />
+                  <Typography variant="body2" color="text.secondary">
+                    {entry.answer}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+            <div ref={bottomRef} />
+          </Paper>
+
+          <Box display="flex" gap={1}>
+            <TextField
+              fullWidth
+              size="small"
+              variant="outlined"
+              placeholder="Haz tu pregunta..."
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleAsk();
+                }
+              }}
+            />
+            <Button
+              variant="contained"
+              onClick={handleAsk}
+              disabled={loading}
+              endIcon={
+                loading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <SendIcon />
+                )
+              }
+            >
+              ENVIAR
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+    </>
   );
 }
 
