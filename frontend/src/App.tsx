@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import AndroidIcon from "@mui/icons-material/Android";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 
@@ -170,7 +169,7 @@ function App({ onToggleTheme, themeMode }: Props) {
           }}
         >
           <Typography variant="h5" align="center" gutterBottom>
-            Habla con el Sgto. Tomás Rivas
+            Habla con el Sgto. Tomás Rivas 🫡
           </Typography>
 
           <Paper
@@ -203,22 +202,51 @@ function App({ onToggleTheme, themeMode }: Props) {
             }}
           >
             {chat.map((entry, i) => (
-              <Box key={i}>
+              <Box key={i} display="flex" flexDirection="column" gap={1}>
+                {/* Pregunta del usuario */}
                 {entry.question && (
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <AccountCircleIcon color="primary" />
-                    <Typography variant="body2">{entry.question}</Typography>
+                  <Box display="flex" alignItems="flex-start">
+                    <Box mr={1}>
+                      <AccountCircleIcon color="primary" />
+                    </Box>
+                    <Box
+                      sx={{
+                        backgroundColor:
+                          themeMode === "dark" ? "#2d2d2d" : "#f0f0f0",
+                        borderRadius: "16px",
+                        px: 2,
+                        py: 1,
+                        maxWidth: "80%",
+                        position: "relative",
+                      }}
+                    >
+                      <Typography variant="body2">{entry.question}</Typography>
+                    </Box>
                   </Box>
                 )}
-                <Box display="flex" alignItems="center" gap={1} mt={1}>
-                  <AndroidIcon color="secondary" />
-                  {entry.answer === "..." ? (
-                    <TypingDots />
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      {entry.answer}
-                    </Typography>
-                  )}
+
+                {/* Respuesta del asistente */}
+                <Box display="flex" alignItems="flex-start">
+                  <Box mr={1}>🫡</Box>
+                  <Box
+                    sx={{
+                      backgroundColor:
+                        themeMode === "dark" ? "#2d2d2d" : "#f0f0f0",
+                      borderRadius: "16px",
+                      px: 2,
+                      py: 1,
+                      maxWidth: "80%",
+                      position: "relative",
+                    }}
+                  >
+                    {entry.answer === "..." ? (
+                      <TypingDots />
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        {entry.answer}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             ))}
@@ -278,16 +306,13 @@ function App({ onToggleTheme, themeMode }: Props) {
             <Button
               variant="contained"
               onClick={handleAsk}
-              disabled={loading}
-              endIcon={
-                loading ? (
-                  <CircularProgress size={20} color="inherit" />
-                ) : (
-                  <SendIcon />
-                )
-              }
+              disabled={loading || question === ""}
             >
-              ENVIAR
+              {loading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                <SendIcon />
+              )}
             </Button>
           </Box>
         </Container>
