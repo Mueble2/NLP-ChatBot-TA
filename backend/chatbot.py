@@ -94,6 +94,8 @@ def inicializar_index() -> None:
 
 
 def responder_pregunta(pregunta: str) -> str:
+    if not pregunta.strip():
+        return "⚠️ La pregunta no puede estar vacía."
     if qa_chain is None:
         return "⚠️ El índice no está inicializado. Reinicia el servidor e inténtalo de nuevo."
     try:
