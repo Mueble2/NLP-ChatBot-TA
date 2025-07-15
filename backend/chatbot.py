@@ -9,9 +9,9 @@ from langchain.chains import RetrievalQA
 from langchain_ollama import OllamaLLM
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-
 # Directorio donde Chroma persistirá los datos (texto y embeddings)
 PERSIST_DIR = "backend/db/"
+
 URLS = [
     "https://es.wikipedia.org/wiki/Batalla_de_Ayacucho",
     "https://en.wikipedia.org/wiki/Battle_of_Ayacucho",
@@ -61,7 +61,6 @@ def inicializar_index() -> None:
     # 2. Modelo de embeddings
     embedding_fn = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
-
     # 3. VectorStore Chroma (auto-persistente)
     vect_store = Chroma(
         persist_directory=PERSIST_DIR,
@@ -70,17 +69,19 @@ def inicializar_index() -> None:
 
     # 4. Ingestión solo si la base de datos está vacía
     if vect_store._collection.count() == 0:
-        documentos = [extraer_texto(u) for u in URLS]
+        documentos = [(u, extraer_texto(u)) for u in URLS]
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=400,
             chunk_overlap=50,
             separators=["\n\n", "\n", ".", "!", "?", " ", ""]
         )
-        chunks = []
-        for doc in documentos:
+        chunks, metadatas = [], []
+        for url, doc in documentos:
             if doc:
-                chunks.extend(splitter.split_text(doc))
-        vect_store.add_texts(texts=chunks)
+                fragmentos = splitter.split_text(doc)
+                chunks.extend(fragmentos)
+                metadatas.extend([{"source": url}] * len(fragmentos))
+        vect_store.add_texts(texts=chunks, metadatas=metadatas)
 
     # 5. Modelo LLM
     llm = OllamaLLM(model="phi3.5:latest", temperature=0.5)
@@ -94,13 +95,16 @@ def inicializar_index() -> None:
 
 
 def responder_pregunta(pregunta: str) -> str:
+    """
+    Llama a la cadena de QA con una pregunta y retorna la respuesta generada.
+    """
     if not pregunta.strip():
         return "⚠️ La pregunta no puede estar vacía."
     if qa_chain is None:
         return "⚠️ El índice no está inicializado. Reinicia el servidor e inténtalo de nuevo."
     try:
         resultado = qa_chain.invoke({"query": pregunta})
-        if "result" in resultado:
+        if isinstance(resultado, dict) and "result" in resultado:
             return resultado["result"]
         elif isinstance(resultado, str):
             return resultado
