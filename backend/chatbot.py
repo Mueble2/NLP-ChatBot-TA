@@ -100,7 +100,7 @@ def responder_pregunta(pregunta: str) -> str:
         return "⚠️ El índice no está inicializado. Reinicia el servidor e inténtalo de nuevo."
     try:
         resultado = qa_chain.invoke({"query": pregunta})
-        if "query" in resultado:
+        if "result" in resultado:
             return resultado["result"]
         elif isinstance(resultado, str):
             return resultado
