@@ -17,6 +17,7 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 
 import type { ChatEntry } from "./types";
 import TypingDots from "./components/TypingDots";
+import { ArrowDownward } from "@mui/icons-material";
 
 const fondo = `/batalla${Math.floor(Math.random() * 4 + 1)}.png`;
 
@@ -29,6 +30,8 @@ function App({ onToggleTheme, themeMode }: Props) {
   const [question, setQuestion] = useState("");
   const [chat, setChat] = useState<ChatEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   // Mensaje inicial del veterano
@@ -45,6 +48,21 @@ function App({ onToggleTheme, themeMode }: Props) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
+
+  // Botón de desplazamiento
+  useEffect(() => {
+    const chatBox = document.getElementById("chat-box");
+
+    const handleScroll = () => {
+      if (!chatBox) return;
+      const isAtBottom =
+        chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 50;
+      setShowScrollButton(!isAtBottom);
+    };
+
+    chatBox?.addEventListener("scroll", handleScroll);
+    return () => chatBox?.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleAsk = async () => {
     if (!question.trim()) return;
@@ -156,7 +174,9 @@ function App({ onToggleTheme, themeMode }: Props) {
           </Typography>
 
           <Paper
+            id="chat-box"
             sx={{
+              position: "relative",
               height: "60vh",
               overflowY: "auto",
               p: 1,
@@ -202,6 +222,41 @@ function App({ onToggleTheme, themeMode }: Props) {
                 </Box>
               </Box>
             ))}
+
+            {/* Botón circular de desplazamiento */}
+            {showScrollButton && (
+              <Box
+                sx={{
+                  position: "sticky",
+                  bottom: 8,
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  pr: 1,
+                  mt: "auto",
+                  zIndex: 2,
+                  animation: "fadeInUp 0.3s ease-in-out",
+                  "@keyframes fadeInUp": {
+                    from: { opacity: 0, transform: "translateY(20px)" },
+                    to: { opacity: 1, transform: "translateY(0)" },
+                  },
+                }}
+              >
+                <IconButton
+                  onClick={() =>
+                    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+                  }
+                  sx={{
+                    bgcolor: "primary.main",
+                    color: "white",
+                    "&:hover": { bgcolor: "primary.dark" },
+                    width: 40,
+                    height: 40,
+                  }}
+                >
+                  <ArrowDownward fontSize="small" />
+                </IconButton>
+              </Box>
+            )}
             <div ref={bottomRef} />
           </Paper>
 
