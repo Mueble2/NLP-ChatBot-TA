@@ -16,6 +16,7 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 
 import type { ChatEntry } from "./types";
+import TypingDots from "./components/TypingDots";
 
 const fondo = `/batalla${Math.floor(Math.random() * 4 + 1)}.png`;
 
@@ -63,14 +64,29 @@ function App({ onToggleTheme, themeMode }: Props) {
 
       const data = await response.json();
 
-      setChat((prev) => {
-        const actualizado = [...prev];
-        actualizado[actualizado.length - 1] = {
-          question: nuevaPregunta,
-          answer: data.respuesta,
-        };
-        return actualizado;
-      });
+      const respuestaCompleta = data.respuesta;
+      let currentIndex = 0;
+
+      const escribir = () => {
+        setChat((prev) => {
+          const actualizado = [...prev];
+          const actual = actualizado[actualizado.length - 1];
+          actualizado[actualizado.length - 1] = {
+            ...actual,
+            answer: respuestaCompleta.slice(0, currentIndex),
+          };
+          return actualizado;
+        });
+
+        currentIndex++;
+        if (currentIndex <= respuestaCompleta.length) {
+          setTimeout(escribir, 20);
+        } else {
+          setLoading(false);
+        }
+      };
+
+      escribir();
     } catch (error) {
       setChat((prev) => {
         const actualizado = [...prev];
@@ -176,9 +192,13 @@ function App({ onToggleTheme, themeMode }: Props) {
                 )}
                 <Box display="flex" alignItems="center" gap={1} mt={1}>
                   <AndroidIcon color="secondary" />
-                  <Typography variant="body2" color="text.secondary">
-                    {entry.answer}
-                  </Typography>
+                  {entry.answer === "..." ? (
+                    <TypingDots />
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      {entry.answer}
+                    </Typography>
+                  )}
                 </Box>
               </Box>
             ))}
