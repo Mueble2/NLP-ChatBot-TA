@@ -8,6 +8,7 @@ from langchain_chroma import Chroma
 from langchain.chains import RetrievalQA
 from langchain_ollama import OllamaLLM
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.prompts import PromptTemplate
 
 # Directorio donde Chroma persistirá los datos (texto y embeddings)
 PERSIST_DIR = "backend/db/"
@@ -24,7 +25,21 @@ URLS = [
     "https://elpais.com/america/2024-12-09/ayacucho-diciembre-9-1824-el-final-de-un-imperio-y-el-inicio-de-america-latina.html"
 ]
 
-# Variable global que contendrá la cadena de QA
+PROMPT = PromptTemplate(
+    input_variables=["context", "question"],
+    template="""
+Eres un historiador experto que responde exclusivamente en español. Responde de manera clara y precisa usando solo la información contenida en el contexto.
+
+Contexto:
+{context}
+
+Pregunta:
+{question}
+
+Respuesta:"""
+)
+
+
 qa_chain = None
 
 
@@ -89,8 +104,9 @@ def inicializar_index() -> None:
     # 6. Cadena RAG con RetrievalQA
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
-        chain_type="map_reduce",
-        retriever=vect_store.as_retriever()
+        chain_type="stuff",
+        retriever=vect_store.as_retriever(),
+        chain_type_kwargs={"prompt": PROMPT}
     )
 
 
