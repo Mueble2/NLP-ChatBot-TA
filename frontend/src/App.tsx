@@ -6,54 +6,35 @@ import {
   Button,
   Typography,
   CircularProgress,
-  ToggleButton,
-  ToggleButtonGroup,
   Paper,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import AndroidIcon from "@mui/icons-material/Android";
 
-import { mockAnswer } from "./mock";
 import type { ChatEntry } from "./types";
+
 interface Props {
   onToggleTheme: () => void;
   themeMode: "light" | "dark";
 }
+
 function App({ onToggleTheme, themeMode }: Props) {
   const [question, setQuestion] = useState("");
   const [chat, setChat] = useState<ChatEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"real" | "mock">("real");
-
-  const handleModeChange = (
-    _: React.MouseEvent<HTMLElement>,
-    newMode: "real" | "mock" | null
-  ) => {
-    if (newMode !== null) {
-      setMode(newMode);
-    }
-  };
 
   const handleAsk = async () => {
     if (!question.trim()) return;
     setLoading(true);
 
     try {
-      let data: { respuesta: string };
-
-      if (mode === "real") {
-        const response = await fetch("http://localhost:8000/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          // Aquí envías la clave "pregunta" que espera el backend
-          body: JSON.stringify({ pregunta: question }),
-        });
-        data = await response.json();
-      } else {
-        const mock = await mockAnswer(question);
-        data = { respuesta: mock.answer };
-      }
+      const response = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pregunta: question }),
+      });
+      const data = await response.json();
 
       setChat([...chat, { question, answer: data.respuesta }]);
       setQuestion("");
@@ -88,28 +69,6 @@ function App({ onToggleTheme, themeMode }: Props) {
             Chatbot
           </Typography>
 
-          <Typography
-            variant="caption"
-            display="block"
-            align="center"
-            gutterBottom
-          >
-            Elige si deseas usar el backend real o una simulación
-          </Typography>
-
-          <ToggleButtonGroup
-            value={mode}
-            exclusive
-            onChange={handleModeChange}
-            size="small"
-            color="primary"
-            fullWidth
-            sx={{ mb: 2 }}
-          >
-            <ToggleButton value="real">BACKEND</ToggleButton>
-            <ToggleButton value="mock">SIMULADO</ToggleButton>
-          </ToggleButtonGroup>
-
           <Paper
             sx={{
               height: "60vh",
@@ -121,8 +80,6 @@ function App({ onToggleTheme, themeMode }: Props) {
               flexDirection: "column",
               gap: 2,
               bgcolor: "background.paper",
-
-              /* Scroll personalizado */
               "&::-webkit-scrollbar": {
                 width: "8px",
               },
