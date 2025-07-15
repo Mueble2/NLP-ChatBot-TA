@@ -3,11 +3,12 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-from sentence_transformers import SentenceTransformer
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain.chains import RetrievalQA
 from langchain_ollama import OllamaLLM
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
 
 # Directorio donde Chroma persistirá los datos (texto y embeddings)
 PERSIST_DIR = "backend/db/"
@@ -43,23 +44,6 @@ def extraer_texto(url: str) -> str:
     return re.sub(r"\s+", " ", texto).strip()
 
 
-def dividir_en_chunks(texto: str, max_len: int = 400) -> list[str]:
-    """
-    Parte el texto en fragmentos de como máximo `max_len` caracteres, respetando oraciones.
-    """
-    oraciones = re.split(r"(?<=[.?!])\s+", texto)
-    chunks, actual = [], ""
-    for oracion in oraciones:
-        if len(actual) + len(oracion) <= max_len:
-            actual += " " + oracion
-        else:
-            chunks.append(actual.strip())
-            actual = oracion
-    if actual:
-        chunks.append(actual.strip())
-    return chunks
-
-
 def inicializar_index() -> None:
     """
     Se encarga de:
@@ -87,10 +71,15 @@ def inicializar_index() -> None:
     # 4. Ingestión solo si la base de datos está vacía
     if vect_store._collection.count() == 0:
         documentos = [extraer_texto(u) for u in URLS]
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=400,
+            chunk_overlap=50,
+            separators=["\n\n", "\n", ".", "!", "?", " ", ""]
+        )
         chunks = []
         for doc in documentos:
             if doc:
-                chunks.extend(dividir_en_chunks(doc))
+                chunks.extend(splitter.split_text(doc))
         vect_store.add_texts(texts=chunks)
 
     # 5. Modelo LLM
@@ -99,7 +88,7 @@ def inicializar_index() -> None:
     # 6. Cadena RAG con RetrievalQA
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
-        chain_type="stuff",
+        chain_type="map_reduce",
         retriever=vect_store.as_retriever()
     )
 
@@ -109,7 +98,6 @@ def responder_pregunta(pregunta: str) -> str:
         return "⚠️ El índice no está inicializado. Reinicia el servidor e inténtalo de nuevo."
     try:
         resultado = qa_chain.invoke({"query": pregunta})
-        print("DEBUG - Resultado de invoke:", resultado)
         if "query" in resultado:
             return resultado["result"]
         elif isinstance(resultado, str):
