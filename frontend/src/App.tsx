@@ -105,7 +105,7 @@ function App({ onToggleTheme, themeMode }: Props) {
 
       <Container maxWidth="xs">
         <Typography variant="h5" align="center" gutterBottom>
-          Veterano de la Batalla de Ayacucho
+          Habla con el Sgto. Tomás Rivas
         </Typography>
 
         <Paper
