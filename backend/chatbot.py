@@ -81,8 +81,7 @@ def inicializar_index() -> None:
         logging.info("La base de datos está vacía. Iniciando ingestión.")
         documentos = [(u, extraer_texto(u)) for u in URLS]
         splitter = RecursiveCharacterTextSplitter(
-            chunk_size=400, chunk_overlap=50,
-            separators=["\n\n", "\n", ".", "!", "?", " ", ""]
+            chunk_size=400, chunk_overlap=50
         )
         chunks, metadatas = [], []
         for url, doc in documentos:
