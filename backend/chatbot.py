@@ -74,7 +74,12 @@ def inicializar_index() -> None:
     global qa_chain, retriever, llm
 
     os.makedirs(PERSIST_DIR, exist_ok=True)
-    embedding_fn = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    import torch
+
+    embedding_fn = HuggingFaceEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        model_kwargs={"device": "cpu"}
+    )
     vect_store = Chroma(persist_directory=PERSIST_DIR, embedding_function=embedding_fn)
 
     if vect_store._collection.count() == 0:
